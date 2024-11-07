@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: devstars-academy-postgres
+    environment:
+      POSTGRES_USER: devstars_user
+      POSTGRES_PASSWORD: devstars_password
+      POSTGRES_DB: devstars_db
+    ports:
+      - '5435:5432'
+    volumes:
+      - devstars_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  devstars_postgres_data:
