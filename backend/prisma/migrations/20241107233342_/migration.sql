@@ -9,9 +9,9 @@ CREATE TABLE "alunos" (
     "escolaridade" TEXT NOT NULL,
     "rg" TEXT NOT NULL,
     "cpf" TEXT NOT NULL,
-    "comprovanteEndereco" TEXT NOT NULL,
-    "laudoMedico" TEXT NOT NULL,
-    "bneLink" TEXT NOT NULL,
+    "LinkcomprovanteEndereco" TEXT NOT NULL,
+    "LinklaudoMedico" TEXT NOT NULL,
+    "LinkBne" TEXT NOT NULL,
 
     CONSTRAINT "alunos_pkey" PRIMARY KEY ("id")
 );
@@ -22,7 +22,7 @@ CREATE TABLE "professores" (
     "nomeCompleto" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "senha" TEXT NOT NULL,
-    "telefone" TEXT,
+    "telefone" TEXT NOT NULL,
     "rg" TEXT NOT NULL,
     "cpf" TEXT NOT NULL,
     "endereco" TEXT,
@@ -50,8 +50,8 @@ CREATE TABLE "cursos" (
 CREATE TABLE "aulas" (
     "id" SERIAL NOT NULL,
     "nome" TEXT NOT NULL,
-    "conteudo" TEXT NOT NULL,
-    "data" TIMESTAMP(3) NOT NULL,
+    "conteudo" TEXT,
+    "data" TIMESTAMP(3),
     "link" TEXT,
     "cursoId" INTEGER NOT NULL,
 

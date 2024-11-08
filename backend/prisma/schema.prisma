@@ -14,18 +14,18 @@ datasource db {
 }
 
 model Aluno {
-  id                  Int     @id @default(autoincrement())
-  nomeCompleto        String
-  email               String  @unique
-  senha               String
-  matricula           String  @unique
-  telefone            String
-  escolaridade        String
-  rg                  String  @unique
-  cpf                 String  @unique
-  comprovanteEndereco String
-  laudoMedico         String
-  bneLink             String
+  id                      Int    @id @default(autoincrement())
+  nomeCompleto            String
+  email                   String @unique
+  senha                   String
+  matricula               String @unique
+  telefone                String
+  escolaridade            String
+  rg                      String @unique
+  cpf                     String @unique
+  LinkcomprovanteEndereco String
+  LinklaudoMedico         String
+  LinkBne                 String
 
   cursos Curso[] @relation("CursoAluno")
 
@@ -37,7 +37,7 @@ model Professor {
   nomeCompleto String
   email        String  @unique
   senha        String
-  telefone     String?
+  telefone     String
   rg           String  @unique
   cpf          String  @unique
   endereco     String?
@@ -54,7 +54,7 @@ model Curso {
   id              Int        @id @default(autoincrement())
   nome            String
   descricao       String?
-  cargaHoraria    Int
+  cargaHoraria    String?
   gradeCurricular String
   dataInicio      DateTime?
   dataFim         DateTime?
@@ -71,8 +71,8 @@ model Curso {
 model Aula {
   id       Int      @id @default(autoincrement())
   nome     String
-  conteudo String
-  data     DateTime
+  conteudo String?
+  data     DateTime?
   link     String?
   cursoId  Int
   curso    Curso    @relation(fields: [cursoId], references: [id])
