@@ -2,16 +2,19 @@
 
 import * as React from "react";
 import {
+  BookOpen,
+  Bot,
   Frame,
   LifeBuoy,
   Map,
   PieChart,
-  PlayCircle,
   Send,
   Settings2,
-  Sparkles,
-  SquareTerminal,
+  Stars,
   User,
+  User2,
+  User2Icon,
+  UserCircleIcon,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -27,6 +30,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { ModeToggle } from "./mode-toggle";
 
 const data = {
   user: {
@@ -37,8 +41,8 @@ const data = {
   navMain: [
     {
       title: "Alunos",
-      url: "/alunos",
-      icon: SquareTerminal,
+      url: "#",
+      icon: User2,
       isActive: true,
       items: [
         {
@@ -58,7 +62,7 @@ const data = {
     {
       title: "Professores",
       url: "#",
-      icon: User,
+      icon: UserCircleIcon,
       items: [
         {
           title: "Genesis",
@@ -77,7 +81,7 @@ const data = {
     {
       title: "Cursos",
       url: "#",
-      icon: PlayCircle,
+      icon: BookOpen,
       items: [
         {
           title: "Introduction",
@@ -98,7 +102,7 @@ const data = {
       ],
     },
     {
-      title: "Settings",
+      title: "Configurações",
       url: "#",
       icon: Settings2,
       items: [
@@ -140,12 +144,12 @@ const data = {
       icon: Frame,
     },
     {
-      name: "Inteligência Emocional",
+      name: "Inteligêcia Emocional",
       url: "#",
       icon: PieChart,
     },
     {
-      name: "Travel",
+      name: "Fórum",
       url: "#",
       icon: Map,
     },
@@ -154,19 +158,20 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar variant="floating" {...props}>
+    <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Sparkles className="size-4" />
+                  <Stars className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">DevStars</span>
                   <span className="truncate text-xs">Academy</span>
                 </div>
+                <ModeToggle />
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
