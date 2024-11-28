@@ -37,7 +37,7 @@ CREATE TABLE "cursos" (
     "id" SERIAL NOT NULL,
     "nome" TEXT NOT NULL,
     "descricao" TEXT,
-    "cargaHoraria" INTEGER NOT NULL,
+    "cargaHoraria" TEXT,
     "gradeCurricular" TEXT NOT NULL,
     "dataInicio" TIMESTAMP(3),
     "dataFim" TIMESTAMP(3),
