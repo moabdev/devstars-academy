@@ -2,16 +2,16 @@
 
 import * as React from "react";
 import {
-  BookOpen,
-  Bot,
-  Command,
   Frame,
   LifeBuoy,
   Map,
   PieChart,
+  PlayCircle,
   Send,
   Settings2,
+  Sparkles,
   SquareTerminal,
+  User,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -30,14 +30,14 @@ import {
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: "Moab Macena",
+    email: "macenamoab@gmail.com",
+    avatar: "https://github.com/shadcn.png",
   },
   navMain: [
     {
-      title: "Playground",
-      url: "#",
+      title: "Alunos",
+      url: "/alunos",
       icon: SquareTerminal,
       isActive: true,
       items: [
@@ -56,9 +56,9 @@ const data = {
       ],
     },
     {
-      title: "Models",
+      title: "Professores",
       url: "#",
-      icon: Bot,
+      icon: User,
       items: [
         {
           title: "Genesis",
@@ -75,9 +75,9 @@ const data = {
       ],
     },
     {
-      title: "Documentation",
+      title: "Cursos",
       url: "#",
-      icon: BookOpen,
+      icon: PlayCircle,
       items: [
         {
           title: "Introduction",
@@ -135,12 +135,12 @@ const data = {
   ],
   projects: [
     {
-      name: "Design Engineering",
+      name: "Empregabilidade",
       url: "#",
       icon: Frame,
     },
     {
-      name: "Sales & Marketing",
+      name: "Inteligência Emocional",
       url: "#",
       icon: PieChart,
     },
@@ -161,11 +161,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <SidebarMenuButton size="lg" asChild>
               <a href="#">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Command className="size-4" />
+                  <Sparkles className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">Acme Inc</span>
-                  <span className="truncate text-xs">Enterprise</span>
+                  <span className="truncate font-semibold">DevStars</span>
+                  <span className="truncate text-xs">Academy</span>
                 </div>
               </a>
             </SidebarMenuButton>
