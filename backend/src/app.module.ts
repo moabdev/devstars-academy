@@ -1,14 +1,38 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AlunosModule } from './alunos/alunos.module';
-import { ProfessoresModule } from './professores/professores.module';
-import { CursosModule } from './cursos/cursos.module';
-import { AulasModule } from './aulas/aulas.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
+import { DocumentsModule } from './documents/documents.module';
+import { ActivitySubmissionsModule } from './activity-submissions/activity-submissions.module';
+import { ActivitiesModule } from './activities/activities.module';
+import { CommentsModule } from './comments/comments.module';
+import { PostsModule } from './posts/posts.module';
+import { TicketMessagesModule } from './ticket-messages/ticket-messages.module';
+import { TicketsModule } from './tickets/tickets.module';
+import { CoordinatorsModule } from './coordinators/coordinators.module';
+import { TeachersModule } from './teachers/teachers.module';
+import { StudentsModule } from './students/students.module';
+import { CoursesModule } from './courses/courses.module';
 
 @Module({
-  imports: [AlunosModule, ProfessoresModule, CursosModule, AulasModule, PrismaModule],
+  imports: [
+    PrismaModule,
+    UsersModule,
+    CoursesModule,
+    StudentsModule,
+    TeachersModule,
+    CoordinatorsModule,
+    TicketsModule,
+    TicketMessagesModule,
+    PostsModule,
+    CommentsModule,
+    ActivitiesModule,
+    ActivitySubmissionsModule,
+    DocumentsModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -1,0 +1,36 @@
+### Criar um estudante
+POST http://localhost:4000/students
+Content-Type: application/json
+
+{
+  "firstName": "Alice",
+  "lastName": "Smith",
+  "email": "alice.smith@example.com",
+  "password": "mypassword",
+  "role": "STUDENT"
+}
+
+###
+
+### Listar todos os estudantes
+GET http://localhost:4000/students
+
+###
+
+### Obter um estudante por ID
+GET http://localhost:4000/students/1
+
+###
+
+### Atualizar informações de um estudante
+PUT http://localhost:4000/students/1
+Content-Type: application/json
+
+{
+  "phone": "123123123"
+}
+
+###
+
+### Excluir um estudante
+DELETE http://localhost:4000/students/1

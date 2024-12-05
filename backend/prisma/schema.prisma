@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,69 +7,227 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Aluno {
-  id                      Int    @id @default(autoincrement())
-  nomeCompleto            String
-  email                   String @unique
-  senha                   String
-  matricula               String @unique
-  telefone                String
-  escolaridade            String
-  rg                      String @unique
-  cpf                     String @unique
-  LinkcomprovanteEndereco String
-  LinklaudoMedico         String
-  LinkBne                 String
-
-  cursos Curso[] @relation("CursoAluno")
-
-  @@map("alunos")
+enum Role {
+  STUDENT
+  TEACHER
+  COORDINATOR
 }
 
-model Professor {
-  id           Int     @id @default(autoincrement())
-  nomeCompleto String
-  email        String  @unique
-  senha        String
-  telefone     String
-  rg           String  @unique
-  cpf          String  @unique
-  endereco     String?
-  disciplina   String
-
-  curso   Curso?  @relation(fields: [cursoId], references: [id])
-  cursoId Int?    @unique
-  Curso   Curso[] @relation("CursoProfessor")
-
-  @@map("professores")
+enum Status {
+  ACTIVE
+  INACTIVE
 }
 
-model Curso {
-  id              Int        @id @default(autoincrement())
-  nome            String
-  descricao       String?
-  cargaHoraria    String?
-  gradeCurricular String
-  dataInicio      DateTime?
-  dataFim         DateTime?
-  professor       Professor? @relation("CursoProfessor", fields: [professorId], references: [id])
-
-  alunos      Aluno[]    @relation("CursoAluno")
-  aulas       Aula[]
-  Professor   Professor?
-  professorId Int?
-
-  @@map("cursos")
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  CLOSED
 }
 
-model Aula {
-  id       Int      @id @default(autoincrement())
-  nome     String
-  conteudo String?
-  data     DateTime?
-  link     String?
-  cursoId  Int
-  curso    Curso    @relation(fields: [cursoId], references: [id])
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+}
 
-  @@map("aulas")
+model User {
+  id             Int      @id @default(autoincrement())
+  email          String   @unique
+  password       String
+  firstName      String
+  lastName       String
+  phone          String?
+  role           Role
+  profilePicture String?
+  status         Status   @default(ACTIVE)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  student     Student?
+  teacher     Teacher?
+  coordinator Coordinator?
+
+  tickets        Ticket[]
+  posts          Post[]
+  ticketMessages TicketMessage[]
+  comments       Comment[]
+}
+
+model Student {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  courseEnrollments  Enrollment[]
+  tickets            Ticket[]
+  academicHistory    AcademicHistory?
+  documents          Document[]
+  ActivitySubmission ActivitySubmission[]
+}
+
+model Teacher {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  courseTeachings Course[]
+  tickets         Ticket[]
+}
+
+model Coordinator {
+  id     Int  @id @default(autoincrement())
+  userId Int  @unique
+  user   User @relation(fields: [userId], references: [id])
+
+  coursesManaged Course[]
+  tickets        Ticket[]
+}
+
+model Course {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  startDate   DateTime
+  endDate     DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  coordinatorId Int
+  coordinator   Coordinator @relation(fields: [coordinatorId], references: [id])
+
+  enrollments Enrollment[]
+  activities  Activity[]
+  posts       Post[]
+  Teacher     Teacher?     @relation(fields: [teacherId], references: [id])
+  teacherId   Int?
+}
+
+model Enrollment {
+  id        Int     @id @default(autoincrement())
+  studentId Int
+  courseId  Int
+  student   Student @relation(fields: [studentId], references: [id])
+  course    Course  @relation(fields: [courseId], references: [id])
+
+  grade     Float?
+  frequency Float?
+  status    String?
+
+  @@unique([studentId, courseId])
+}
+
+model Activity {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String
+  dueDate     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id])
+
+  submissions ActivitySubmission[]
+}
+
+model ActivitySubmission {
+  id         Int      @id @default(autoincrement())
+  activityId Int
+  studentId  Int
+  activity   Activity @relation(fields: [activityId], references: [id])
+  student    Student  @relation(fields: [studentId], references: [id])
+
+  submissionDate DateTime @default(now())
+  grade          Float?
+  feedback       String?
+
+  @@unique([activityId, studentId])
+}
+
+model AcademicHistory {
+  id        Int     @id @default(autoincrement())
+  studentId Int     @unique
+  student   Student @relation(fields: [studentId], references: [id])
+
+  approved       Boolean
+  totalGrade     Float
+  frequency      Float
+  graduationDate DateTime?
+}
+
+model Document {
+  id          Int     @id @default(autoincrement())
+  type        String
+  description String?
+  fileUrl     String
+  studentId   Int
+
+  student Student @relation(fields: [studentId], references: [id])
+}
+
+model Ticket {
+  id          Int            @id @default(autoincrement())
+  title       String
+  description String
+  status      TicketStatus   @default(OPEN)
+  priority    TicketPriority @default(LOW)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  closedAt    DateTime?
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  teacherId Int?
+  teacher   Teacher? @relation(fields: [teacherId], references: [id])
+
+  coordinatorId Int?
+  coordinator   Coordinator? @relation(fields: [coordinatorId], references: [id])
+
+  studentId Int?
+  student   Student? @relation(fields: [studentId], references: [id])
+
+  messages TicketMessage[]
+}
+
+model TicketMessage {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+
+  ticketId Int
+  ticket   Ticket @relation(fields: [ticketId], references: [id])
+
+  senderId Int
+  sender   User @relation(fields: [senderId], references: [id])
+}
+
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  courseId Int?
+  course   Course? @relation(fields: [courseId], references: [id])
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  comments Comment[]
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  postId Int
+  post   Post @relation(fields: [postId], references: [id])
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 }

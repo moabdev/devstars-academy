@@ -1,0 +1,36 @@
+### Criar um coordenador
+POST http://localhost:4000/coordinators
+Content-Type: application/json
+
+{
+  "firstName": "Sophia",
+  "lastName": "Johnson",
+  "email": "sophia.johnson@example.com",
+  "password": "coordinator123",
+  "role": "COORDINATOR"
+}
+
+###
+
+### Listar todos os coordenadores
+GET http://localhost:4000/coordinators
+
+###
+
+### Obter um coordenador por ID
+GET http://localhost:4000/coordinators/1
+
+###
+
+### Atualizar informações de um coordenador
+PUT http://localhost:4000/coordinators/1
+Content-Type: application/json
+
+{
+  "phone": "789789789"
+}
+
+###
+
+### Excluir um coordenador
+DELETE http://localhost:4000/coordinators/1

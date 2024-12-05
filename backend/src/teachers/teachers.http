@@ -1,0 +1,36 @@
+### Criar um professor
+POST http://localhost:4000/teachers
+Content-Type: application/json
+
+{
+  "firstName": "Robert",
+  "lastName": "Brown",
+  "email": "robert.brown@example.com",
+  "password": "securepassword",
+  "role": "TEACHER"
+}
+
+###
+
+### Listar todos os professores
+GET http://localhost:4000/teachers
+
+###
+
+### Obter um professor por ID
+GET http://localhost:4000/teachers/1
+
+###
+
+### Atualizar informações de um professor
+PUT http://localhost:4000/teachers/1
+Content-Type: application/json
+
+{
+  "phone": "456456456"
+}
+
+###
+
+### Excluir um professor
+DELETE http://localhost:4000/teachers/1
