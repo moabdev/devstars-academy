@@ -3,10 +3,10 @@ import {
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from "./ui/accordion";
-import { Button } from "./ui/button";
+} from "../ui/accordion";
+import { Button } from "../ui/button";
 
-export const CourseComponentList = () => {
+export const CourseGrade = () => {
   return (
     <div className="mt-4">
       <Accordion type="single" collapsible>

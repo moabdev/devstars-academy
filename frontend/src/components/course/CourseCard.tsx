@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
@@ -8,10 +8,10 @@ import {
   // CardFooter,
   CardHeader,
   CardTitle,
-} from "./ui/card";
+} from "../ui/card";
 import Image from "next/image";
 
-export function CardCurso() {
+export function CourseCard() {
   return (
     <Card className="w-[250px] overflow-hidden">
       <CardContent className="p-0">

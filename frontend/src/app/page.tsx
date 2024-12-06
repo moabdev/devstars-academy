@@ -8,8 +8,7 @@ export default function Home() {
         <div className="flex justify-between bg-white text-black font-semibold text-xl px-6 py-4">
           <div className="">
             <Sparkles />
-            <p>DevStars</p>
-            <span className="font-light text-sm">Academy</span>
+            <p>PCDWEB</p>
           </div>
           <div className="">
             <ul>
