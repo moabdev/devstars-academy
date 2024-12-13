@@ -4,7 +4,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Role, User } from '@prisma/client';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/roles/roles.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('users')
 export class UsersController {

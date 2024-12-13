@@ -1,26 +1,32 @@
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('STUDENT', 'TEACHER', 'COORDINATOR');
+CREATE TYPE "UserRole" AS ENUM ('STUDENT', 'TEACHER', 'COORDINATOR');
 
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('ACTIVE', 'INACTIVE');
+CREATE TYPE "UserStatus" AS ENUM ('ACTIVE', 'INACTIVE');
 
 -- CreateEnum
-CREATE TYPE "TicketStatus" AS ENUM ('OPEN', 'IN_PROGRESS', 'CLOSED');
+CREATE TYPE "TicketState" AS ENUM ('OPEN', 'IN_PROGRESS', 'CLOSED');
 
 -- CreateEnum
-CREATE TYPE "TicketPriority" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
+CREATE TYPE "TicketLevel" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
+
+-- CreateEnum
+CREATE TYPE "SubmissionState" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 
 -- CreateTable
 CREATE TABLE "User" (
     "id" SERIAL NOT NULL,
     "email" TEXT NOT NULL,
     "password" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "role" "Role" NOT NULL,
+    "firstName" TEXT NOT NULL,
+    "lastName" TEXT NOT NULL,
+    "phone" TEXT,
+    "role" "UserRole" NOT NULL,
+    "photo" TEXT,
+    "status" "UserStatus" NOT NULL DEFAULT 'ACTIVE',
+    "deletedAt" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "profilePicture" TEXT,
-    "status" "Status" NOT NULL DEFAULT 'ACTIVE',
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -29,6 +35,7 @@ CREATE TABLE "User" (
 CREATE TABLE "Student" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Student_pkey" PRIMARY KEY ("id")
 );
@@ -37,6 +44,7 @@ CREATE TABLE "Student" (
 CREATE TABLE "Teacher" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Teacher_pkey" PRIMARY KEY ("id")
 );
@@ -45,6 +53,7 @@ CREATE TABLE "Teacher" (
 CREATE TABLE "Coordinator" (
     "id" SERIAL NOT NULL,
     "userId" INTEGER NOT NULL,
+    "deletedAt" TIMESTAMP(3),
 
     CONSTRAINT "Coordinator_pkey" PRIMARY KEY ("id")
 );
@@ -58,6 +67,7 @@ CREATE TABLE "Course" (
     "endDate" TIMESTAMP(3),
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
     "coordinatorId" INTEGER NOT NULL,
     "teacherId" INTEGER,
 
@@ -84,25 +94,29 @@ CREATE TABLE "Activity" (
     "dueDate" TIMESTAMP(3) NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
     "courseId" INTEGER NOT NULL,
 
     CONSTRAINT "Activity_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "ActivitySubmission" (
+CREATE TABLE "Submission" (
     "id" SERIAL NOT NULL,
     "activityId" INTEGER NOT NULL,
     "studentId" INTEGER NOT NULL,
     "submissionDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "grade" DOUBLE PRECISION,
     "feedback" TEXT,
+    "status" "SubmissionState" NOT NULL DEFAULT 'PENDING',
+    "reviewedAt" TIMESTAMP(3),
+    "reviewerId" INTEGER,
 
-    CONSTRAINT "ActivitySubmission_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Submission_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "AcademicHistory" (
+CREATE TABLE "History" (
     "id" SERIAL NOT NULL,
     "studentId" INTEGER NOT NULL,
     "approved" BOOLEAN NOT NULL,
@@ -110,18 +124,20 @@ CREATE TABLE "AcademicHistory" (
     "frequency" DOUBLE PRECISION NOT NULL,
     "graduationDate" TIMESTAMP(3),
 
-    CONSTRAINT "AcademicHistory_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "History_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Document" (
+CREATE TABLE "Doc" (
     "id" SERIAL NOT NULL,
     "type" TEXT NOT NULL,
     "description" TEXT,
     "fileUrl" TEXT NOT NULL,
     "studentId" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deletedAt" TIMESTAMP(3),
 
-    CONSTRAINT "Document_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Doc_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -129,11 +145,12 @@ CREATE TABLE "Ticket" (
     "id" SERIAL NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT NOT NULL,
-    "status" "TicketStatus" NOT NULL DEFAULT 'OPEN',
-    "priority" "TicketPriority" NOT NULL DEFAULT 'LOW',
+    "state" "TicketState" NOT NULL DEFAULT 'OPEN',
+    "level" "TicketLevel" NOT NULL DEFAULT 'LOW',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "closedAt" TIMESTAMP(3),
+    "deletedAt" TIMESTAMP(3),
     "userId" INTEGER NOT NULL,
     "teacherId" INTEGER,
     "coordinatorId" INTEGER,
@@ -143,14 +160,15 @@ CREATE TABLE "Ticket" (
 );
 
 -- CreateTable
-CREATE TABLE "TicketMessage" (
+CREATE TABLE "Message" (
     "id" SERIAL NOT NULL,
     "content" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "deletedAt" TIMESTAMP(3),
     "ticketId" INTEGER NOT NULL,
     "senderId" INTEGER NOT NULL,
 
-    CONSTRAINT "TicketMessage_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Message_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -160,6 +178,7 @@ CREATE TABLE "Post" (
     "content" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
     "courseId" INTEGER,
     "userId" INTEGER NOT NULL,
 
@@ -172,6 +191,7 @@ CREATE TABLE "Comment" (
     "content" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
     "postId" INTEGER NOT NULL,
     "userId" INTEGER NOT NULL,
 
@@ -182,22 +202,61 @@ CREATE TABLE "Comment" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE INDEX "User_email_status_idx" ON "User"("email", "status");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Student_userId_key" ON "Student"("userId");
+
+-- CreateIndex
+CREATE INDEX "Student_userId_idx" ON "Student"("userId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Teacher_userId_key" ON "Teacher"("userId");
 
 -- CreateIndex
+CREATE INDEX "Teacher_userId_idx" ON "Teacher"("userId");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Coordinator_userId_key" ON "Coordinator"("userId");
+
+-- CreateIndex
+CREATE INDEX "Coordinator_userId_idx" ON "Coordinator"("userId");
+
+-- CreateIndex
+CREATE INDEX "Course_coordinatorId_teacherId_idx" ON "Course"("coordinatorId", "teacherId");
+
+-- CreateIndex
+CREATE INDEX "Enrollment_studentId_courseId_idx" ON "Enrollment"("studentId", "courseId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Enrollment_studentId_courseId_key" ON "Enrollment"("studentId", "courseId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "ActivitySubmission_activityId_studentId_key" ON "ActivitySubmission"("activityId", "studentId");
+CREATE INDEX "Activity_courseId_dueDate_idx" ON "Activity"("courseId", "dueDate");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "AcademicHistory_studentId_key" ON "AcademicHistory"("studentId");
+CREATE INDEX "Submission_studentId_status_idx" ON "Submission"("studentId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Submission_activityId_studentId_key" ON "Submission"("activityId", "studentId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "History_studentId_key" ON "History"("studentId");
+
+-- CreateIndex
+CREATE INDEX "Doc_studentId_type_idx" ON "Doc"("studentId", "type");
+
+-- CreateIndex
+CREATE INDEX "Ticket_userId_state_level_idx" ON "Ticket"("userId", "state", "level");
+
+-- CreateIndex
+CREATE INDEX "Message_ticketId_senderId_idx" ON "Message"("ticketId", "senderId");
+
+-- CreateIndex
+CREATE INDEX "Post_courseId_userId_idx" ON "Post"("courseId", "userId");
+
+-- CreateIndex
+CREATE INDEX "Comment_postId_userId_idx" ON "Comment"("postId", "userId");
 
 -- AddForeignKey
 ALTER TABLE "Student" ADD CONSTRAINT "Student_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -224,16 +283,19 @@ ALTER TABLE "Enrollment" ADD CONSTRAINT "Enrollment_courseId_fkey" FOREIGN KEY (
 ALTER TABLE "Activity" ADD CONSTRAINT "Activity_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ActivitySubmission" ADD CONSTRAINT "ActivitySubmission_activityId_fkey" FOREIGN KEY ("activityId") REFERENCES "Activity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Submission" ADD CONSTRAINT "Submission_activityId_fkey" FOREIGN KEY ("activityId") REFERENCES "Activity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ActivitySubmission" ADD CONSTRAINT "ActivitySubmission_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Submission" ADD CONSTRAINT "Submission_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "AcademicHistory" ADD CONSTRAINT "AcademicHistory_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Submission" ADD CONSTRAINT "Submission_reviewerId_fkey" FOREIGN KEY ("reviewerId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Document" ADD CONSTRAINT "Document_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "History" ADD CONSTRAINT "History_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Doc" ADD CONSTRAINT "Doc_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -248,10 +310,10 @@ ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_coordinatorId_fkey" FOREIGN KEY ("co
 ALTER TABLE "Ticket" ADD CONSTRAINT "Ticket_studentId_fkey" FOREIGN KEY ("studentId") REFERENCES "Student"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TicketMessage" ADD CONSTRAINT "TicketMessage_ticketId_fkey" FOREIGN KEY ("ticketId") REFERENCES "Ticket"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Message" ADD CONSTRAINT "Message_ticketId_fkey" FOREIGN KEY ("ticketId") REFERENCES "Ticket"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "TicketMessage" ADD CONSTRAINT "TicketMessage_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Message" ADD CONSTRAINT "Message_senderId_fkey" FOREIGN KEY ("senderId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Post" ADD CONSTRAINT "Post_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE SET NULL ON UPDATE CASCADE;

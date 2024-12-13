@@ -7,82 +7,100 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
+enum UserRole {
   STUDENT
   TEACHER
   COORDINATOR
 }
 
-enum Status {
+enum UserStatus {
   ACTIVE
   INACTIVE
 }
 
-enum TicketStatus {
+enum TicketState {
   OPEN
   IN_PROGRESS
   CLOSED
 }
 
-enum TicketPriority {
+enum TicketLevel {
   LOW
   MEDIUM
   HIGH
 }
 
+enum SubmissionState {
+  PENDING
+  APPROVED
+  REJECTED
+}
 
 model User {
-  id             Int      @id @default(autoincrement())
-  email          String   @unique
-  password       String
-  firstName      String
-  lastName       String
-  phone          String?
-  role           Role
-  profilePicture String?
-  status         Status   @default(ACTIVE)
+  id        Int        @id @default(autoincrement())
+  email     String     @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  role      UserRole
+  photo     String?
+  status    UserStatus @default(ACTIVE)
+  deletedAt DateTime?
 
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   student     Student?
   teacher     Teacher?
   coordinator Coordinator?
 
-  tickets        Ticket[]
-  posts          Post[]
-  ticketMessages TicketMessage[]
-  comments       Comment[]
+  tickets  Ticket[]
+  posts    Post[]
+  messages Message[]
+  comments Comment[]
+  reviews  Submission[] @relation("Reviews")
+
+  @@index([email, status])
 }
 
 model Student {
-  id     Int  @id @default(autoincrement())
-  userId Int  @unique
-  user   User @relation(fields: [userId], references: [id])
+  id        Int       @id @default(autoincrement())
+  userId    Int       @unique
+  user      User      @relation(fields: [userId], references: [id])
+  deletedAt DateTime?
 
-  courseEnrollments  Enrollment[]
-  tickets            Ticket[]
-  academicHistory    AcademicHistory?
-  documents          Document[]
-  ActivitySubmission ActivitySubmission[]
+  enrollments Enrollment[]
+  tickets     Ticket[]
+  history     History?
+  docs        Doc[]
+  submissions Submission[]
+
+  @@index([userId])
 }
 
 model Teacher {
-  id     Int  @id @default(autoincrement())
-  userId Int  @unique
-  user   User @relation(fields: [userId], references: [id])
+  id        Int       @id @default(autoincrement())
+  userId    Int       @unique
+  user      User      @relation(fields: [userId], references: [id])
+  deletedAt DateTime?
 
-  courseTeachings Course[]
-  tickets         Ticket[]
+  courses Course[]
+  tickets Ticket[]
+
+  @@index([userId])
 }
 
 model Coordinator {
-  id     Int  @id @default(autoincrement())
-  userId Int  @unique
-  user   User @relation(fields: [userId], references: [id])
+  id        Int       @id @default(autoincrement())
+  userId    Int       @unique
+  user      User      @relation(fields: [userId], references: [id])
+  deletedAt DateTime?
 
-  coursesManaged Course[]
-  tickets        Ticket[]
+  courses Course[]
+  tickets Ticket[]
+
+  @@index([userId])
 }
 
 model Course {
@@ -93,15 +111,19 @@ model Course {
   endDate     DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   coordinatorId Int
   coordinator   Coordinator @relation(fields: [coordinatorId], references: [id])
 
+  teacherId Int?
+  teacher   Teacher? @relation(fields: [teacherId], references: [id])
+
   enrollments Enrollment[]
   activities  Activity[]
   posts       Post[]
-  Teacher     Teacher?     @relation(fields: [teacherId], references: [id])
-  teacherId   Int?
+
+  @@index([coordinatorId, teacherId])
 }
 
 model Enrollment {
@@ -116,37 +138,47 @@ model Enrollment {
   status    String?
 
   @@unique([studentId, courseId])
+  @@index([studentId, courseId])
 }
 
 model Activity {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   description String
   dueDate     DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
 
   courseId Int
   course   Course @relation(fields: [courseId], references: [id])
 
-  submissions ActivitySubmission[]
+  submissions Submission[]
+
+  @@index([courseId, dueDate])
 }
 
-model ActivitySubmission {
+model Submission {
   id         Int      @id @default(autoincrement())
   activityId Int
   studentId  Int
   activity   Activity @relation(fields: [activityId], references: [id])
   student    Student  @relation(fields: [studentId], references: [id])
 
-  submissionDate DateTime @default(now())
+  submissionDate DateTime        @default(now())
   grade          Float?
   feedback       String?
+  status         SubmissionState @default(PENDING)
+
+  reviewedAt DateTime?
+  reviewerId Int?
+  reviewer   User?     @relation("Reviews", fields: [reviewerId], references: [id])
 
   @@unique([activityId, studentId])
+  @@index([studentId, status])
 }
 
-model AcademicHistory {
+model History {
   id        Int     @id @default(autoincrement())
   studentId Int     @unique
   student   Student @relation(fields: [studentId], references: [id])
@@ -157,25 +189,30 @@ model AcademicHistory {
   graduationDate DateTime?
 }
 
-model Document {
-  id          Int     @id @default(autoincrement())
+model Doc {
+  id          Int       @id @default(autoincrement())
   type        String
   description String?
   fileUrl     String
   studentId   Int
+  createdAt   DateTime  @default(now())
+  deletedAt   DateTime?
 
   student Student @relation(fields: [studentId], references: [id])
+
+  @@index([studentId, type])
 }
 
 model Ticket {
-  id          Int            @id @default(autoincrement())
+  id          Int         @id @default(autoincrement())
   title       String
   description String
-  status      TicketStatus   @default(OPEN)
-  priority    TicketPriority @default(LOW)
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
+  state       TicketState @default(OPEN)
+  level       TicketLevel @default(LOW)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
   closedAt    DateTime?
+  deletedAt   DateTime?
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
@@ -189,27 +226,33 @@ model Ticket {
   studentId Int?
   student   Student? @relation(fields: [studentId], references: [id])
 
-  messages TicketMessage[]
+  messages Message[]
+
+  @@index([userId, state, level])
 }
 
-model TicketMessage {
-  id        Int      @id @default(autoincrement())
+model Message {
+  id        Int       @id @default(autoincrement())
   content   String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
 
   ticketId Int
   ticket   Ticket @relation(fields: [ticketId], references: [id])
 
   senderId Int
   sender   User @relation(fields: [senderId], references: [id])
+
+  @@index([ticketId, senderId])
 }
 
 model Post {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   title     String
   content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   courseId Int?
   course   Course? @relation(fields: [courseId], references: [id])
@@ -218,17 +261,22 @@ model Post {
   user   User @relation(fields: [userId], references: [id])
 
   comments Comment[]
+
+  @@index([courseId, userId])
 }
 
 model Comment {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   content   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   postId Int
   post   Post @relation(fields: [postId], references: [id])
 
   userId Int
   user   User @relation(fields: [userId], references: [id])
+
+  @@index([postId, userId])
 }
